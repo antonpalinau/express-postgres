@@ -1,4 +1,4 @@
-import { Op } from '../loaders/database';
+import { Op } from '../data-access/database';
 
 class AutoSuggestUserService {
     constructor(userModel) {

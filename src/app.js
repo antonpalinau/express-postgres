@@ -2,7 +2,7 @@ import express from 'express';
 import autoSuggestRouter from './routes/api/getAutoSuggestUsers';
 import usersRouter from './routes/api/users';
 import config from './config';
-import connectAndInitializeDB from './loaders';
+import connectAndInitializeDB from './data-access';
 
 const app = express();
 
