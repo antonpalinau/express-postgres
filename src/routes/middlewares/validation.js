@@ -7,11 +7,11 @@ const normalizeErrors = errors => {
 
     return {
         normilizedErrors,
-        status: 'failed',
+        status: 'failed'
     };
 };
 
-export const validateSchema = schema => (req, res, next) => {
+const validateSchema = schema => (req, res, next) => {
     const { error } = schema.validate(req.body, {
         abortEarly: false,
         allowUnknown: false
@@ -24,3 +24,5 @@ export const validateSchema = schema => (req, res, next) => {
         next();
     }
 };
+
+export default validateSchema;

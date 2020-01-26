@@ -1,9 +1,8 @@
 import express from 'express';
 import autoSuggestRouter from './routes/api/getAutoSuggestUsers';
 import usersRouter from './routes/api/users';
-import db from './config/database';
-import UserModel from './models/UserModel';
-import dbInitialData from './config/databaseInitialData';
+import config from './config';
+import connectAndInitializeDB from './loaders';
 
 const app = express();
 
@@ -11,20 +10,8 @@ app.use(express.json());
 app.use('/api/users', usersRouter);
 app.use('/api/getautosuggestusers', autoSuggestRouter);
 
-app.listen(5000, () => {
-    console.log('server is running');
+app.listen(config.port, () => {
+    console.log(`server is running on port ${config.port}`);
 });
 
-db
-    .authenticate()
-    .then(() => {
-        console.log('Connection has been established successfully.');
-
-        UserModel.sync({ force: true })
-            .then(() => UserModel.bulkCreate(dbInitialData))
-            .then(() => console.log('Database has been initialized successfully'))
-            .catch(err => console.log(err));
-    })
-    .catch(err => {
-        console.error('Unable to connect to the database:', err);
-    });
+connectAndInitializeDB();

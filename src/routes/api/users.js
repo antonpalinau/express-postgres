@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { validateSchema } from '../../validation';
+import validateSchema from '../middlewares/validation';
 import { schema } from './users.post.put.schema';
 import UserService from '../../services/UserService';
 import UserModel from '../../models/UserModel';

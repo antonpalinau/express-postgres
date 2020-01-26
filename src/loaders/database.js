@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize';
-import 'dotenv/config';
+import config from '../config';
 
-const db = new Sequelize(process.env.DATABASE, process.env.USERNAME, process.env.PASSWORD, {
-    host: `${process.env.HOST}`,
+const db = new Sequelize(config.database, config.login, config.password, {
+    host: config.host,
     dialect: 'postgres',
     dialectOptions: {
         ssl: true
