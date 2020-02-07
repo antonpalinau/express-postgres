@@ -1,3 +1,5 @@
+import uuid from 'uuid';
+
 const users = [
     {
         age: 25,
@@ -27,6 +29,24 @@ const users = [
         isDeleted: false,
         login: 'Ariana',
         password: '12qwerty3456'
+    }
+];
+
+export const groups = [
+    {
+        id: uuid.v4(),
+        name: 'students',
+        permissions: ['READ', 'WRITE', 'UPLOAD_FILES']
+    },
+    {
+        id: uuid.v4(),
+        name: 'teachers',
+        permissions: ['READ', 'WRITE', 'DELETE', 'SHARE', 'UPLOAD_FILES']
+    },
+    {
+        id: uuid.v4(),
+        name: 'parents',
+        permissions: ['READ', 'WRITE']
     }
 ];
 

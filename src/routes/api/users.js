@@ -30,7 +30,7 @@ router.post('/', validateSchema(schema), async (req, res) => {
     const user = await userServiceInstance.createUser(login, password, age, false);
 
     if (!user) {
-        res.json({ msg: 'User with the same login already exists' });
+        return res.json({ msg: 'User with the same login already exists' });
     }
 
     res.json({ msg: 'New user is created', user });

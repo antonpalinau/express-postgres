@@ -1,6 +1,7 @@
 import db from './database';
-import dbInitialData from './databaseInitialData';
+import dbInitialData, { groups } from './databaseInitialData';
 import UserModel from '../models/UserModel';
+import GroupModel from '../models/GroupModel';
 
 export default () => {
     db
@@ -11,6 +12,11 @@ export default () => {
             UserModel.sync({ force: true })
                 .then(() => UserModel.bulkCreate(dbInitialData))
                 .then(() => console.log('Database has been initialized successfully'))
+                .catch(err => console.log(err));
+
+            GroupModel.sync({ force: true })
+                .then(() => GroupModel.bulkCreate(groups))
+                .then(() => console.log('Table Groups has been initialized successfully'))
                 .catch(err => console.log(err));
         })
         .catch(err => {
