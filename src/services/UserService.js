@@ -50,7 +50,7 @@ class UserService {
             return null;
         }
 
-        return this.userModel.update({ isDeleted: true }, {
+        return this.userModel.destroy({
             where: {
                 id
             },
@@ -58,6 +58,15 @@ class UserService {
         })
             .then(user => user)
             .catch(err => console.log(err));
+
+        // return this.userModel.update({ isDeleted: true }, {
+        //     where: {
+        //         id
+        //     },
+        //     returning: true
+        // })
+        //     .then(user => user)
+        //     .catch(err => console.log(err));
     }
 }
 
