@@ -12,7 +12,7 @@ const UserGroup = db.define('usergroup', {
         }
     },
     groupId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
             model: 'Groups',
             key: 'id'
