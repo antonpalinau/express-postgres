@@ -5,5 +5,5 @@ export const schema_post = joi.object({
         .string()
         .required(),
 
-    userIds: joi.array().items(joi.string().required()).required()
+    userIds: joi.array().items(joi.number().required()).required()
 });

@@ -1,16 +1,15 @@
-import db from '../data-access/database';
-
 class UserGroupService {
-    constructor(userGroupModel, userModel, groupModel) {
+    constructor(userGroupModel, userModel, groupModel, db) {
         this.userGroupModel = userGroupModel;
         this.userModel = userModel;
         this.groupModel = groupModel;
+        this.db = db;
     }
 
     async addUsersToGroup(groupId, userIds) {
         let transaction;
         try {
-            transaction = await db.transaction();
+            transaction = await this.db.transaction();
             const group = await this.groupModel.findByPk(groupId, { transaction });
 
             if (!group) {
@@ -36,10 +35,9 @@ class UserGroupService {
 
             await transaction.commit();
         } catch (e) {
-            console.log(e);
             if (transaction) await transaction.rollback();
-
-            return e;
+            console.log(e);
+            throw e;
         }
     }
 }

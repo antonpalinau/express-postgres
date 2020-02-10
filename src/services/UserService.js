@@ -1,6 +1,7 @@
 class UserService {
-    constructor(userModel) {
+    constructor(userModel, db) {
         this.userModel = userModel;
+        this.db = db;
     }
 
     getAllUsers() {
@@ -9,56 +10,83 @@ class UserService {
             .catch(err => console.log(err));
     }
 
-    getUserById(id) {
-        return this.userModel.findByPk(id)
+    getUserById(id, transaction) {
+        return this.userModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(user => user)
             .catch(err => console.log(err));
     }
 
-    createUser(login, password, age, isDeleted) {
-        return this.userModel.create({
-            login,
-            password,
-            age,
-            isDeleted
-        })
-            .then(user => user)
-            .catch(err => console.log(err));
+    async createUser(login, password, age, isDeleted) {
+        let transaction;
+        try {
+            transaction = await this.db.transaction();
+            const user =  await this.userModel.create({
+                login,
+                password,
+                age,
+                isDeleted
+            }, { transaction });
+            await transaction.commit();
+
+            return user;
+        } catch (e) {
+            if (transaction) await transaction.rollback();
+            console.log(e);
+        }
     }
 
     async updateUser(login, password, age, id) {
-        const userToUpdate = await this.getUserById(id);
+        let transaction;
 
-        if (!userToUpdate) {
-            return null;
+        try {
+            transaction = await this.db.transaction();
+            const userToUpdate = await this.getUserById(id, transaction);
+
+            if (!userToUpdate) {
+                return null;
+            }
+
+            const user = await this.userModel.update({ login, password, age }, {
+                where: {
+                    id
+                },
+                transaction,
+                returning: true
+            });
+            await transaction.commit();
+
+            return user;
+        } catch (e) {
+            if (transaction) await transaction.rollback();
+            console.log(e);
         }
-
-        return this.userModel.update({ login, password, age }, {
-            where: {
-                id
-            },
-            returning: true
-        })
-            .then(user => user)
-            .catch(err => console.log(err));
     }
 
     async softDeleteUser(id) {
-        const userToUpdate = await this.getUserById(id);
+        let transaction;
 
-        if (!userToUpdate) {
-            return null;
+        try {
+            transaction = await this.db.transaction();
+            const userToDelete = await this.getUserById(id, transaction);
+
+            if (!userToDelete) {
+                return null;
+            }
+
+            const user = await this.userModel.destroy({
+                where: {
+                    id
+                },
+                transaction,
+                returning: true
+            });
+            await transaction.commit();
+
+            return user;
+        } catch (e) {
+            if (transaction) await transaction.rollback();
+            console.log(e);
         }
-
-        return this.userModel.destroy({
-            where: {
-                id
-            },
-            returning: true
-        })
-            .then(user => user)
-            .catch(err => console.log(err));
-
         // return this.userModel.update({ isDeleted: true }, {
         //     where: {
         //         id

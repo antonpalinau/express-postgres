@@ -1,8 +1,9 @@
 import uuid from 'uuid';
 
 class GroupService {
-    constructor(groupModel) {
+    constructor(groupModel, db) {
         this.groupModel = groupModel;
+        this.db = db;
     }
 
     getAllGroups() {
@@ -11,62 +12,93 @@ class GroupService {
             .catch(err => console.log(err));
     }
 
-    getGroupById(id) {
-        return this.groupModel.findByPk(id)
+    getGroupById(id, transaction) {
+        return this.groupModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(group => group)
             .catch(err => console.log(err));
     }
 
     async createGroup(name, permissions) {
-        const groupExists = await this.groupModel.findOne({
-            where: {
-                name
+        let transaction;
+        try {
+            transaction = await this.db.transaction();
+            const groupExists = await this.groupModel.findOne({
+                where: {
+                    name
+                },
+                transaction
+            });
+
+            if (groupExists) {
+                return null;
             }
-        });
 
-        if (groupExists) {
-            return null;
+            const group = await this.groupModel.create({
+                id: uuid.v4(),
+                name,
+                permissions
+            }, { transaction });
+            await transaction.commit();
+
+            return group;
+        } catch (e) {
+            if (transaction) await transaction.rollback();
+            console.log(e);
+            throw e;
         }
-
-        return await this.groupModel.create({
-            id: uuid.v4(),
-            name,
-            permissions
-        });
     }
 
     async updateGroup(name, permissions, id) {
-        const groupToUpdate = await this.getGroupById(id);
+        let transaction;
+        try {
+            transaction = await this.db.transaction();
+            const groupToUpdate = await this.getGroupById(id, transaction);
 
-        if (!groupToUpdate) {
-            return null;
+            if (!groupToUpdate) {
+                return null;
+            }
+
+            const group = await this.groupModel.update({ name, permissions }, {
+                where: {
+                    id
+                },
+                transaction,
+                returning: true
+            });
+            await transaction.commit();
+
+            return group;
+        } catch (e) {
+            if (transaction) await transaction.rollback();
+            console.log(e);
+            throw e;
         }
-
-        return this.groupModel.update({ name, permissions }, {
-            where: {
-                id
-            },
-            returning: true
-        })
-            .then(group => group)
-            .catch(err => console.log(err));
     }
 
     async hardDeleteGroup(id) {
-        const groupToDelete = await this.getGroupById(id);
+        let transaction;
+        try {
+            transaction = await this.db.transaction();
+            const groupToDelete = await this.getGroupById(id, transaction);
 
-        if (!groupToDelete) {
-            return null;
+            if (!groupToDelete) {
+                return null;
+            }
+
+            const group = await this.groupModel.destroy({
+                where: {
+                    id
+                },
+                returning: true
+            });
+            await transaction.commit();
+
+            return group;
+        } catch (e) {
+            if (transaction) await transaction.rollback();
+            console.log(e);
+            throw e;
         }
-
-        return this.groupModel.destroy({
-            where: {
-                id
-            },
-            returning: true
-        })
-            .then(group => group)
-            .catch(err => console.log(err));
     }
 }
 
