@@ -1,19 +1,22 @@
 import db from './database';
-import dbInitialData from './databaseInitialData';
+import dbInitialData, { groups } from './databaseInitialData';
 import UserModel from '../models/UserModel';
+import GroupModel from '../models/GroupModel';
+import UserGroupModel from '../models/UserGroup';
 
-export default () => {
-    db
-        .authenticate()
-        .then(() => {
-            console.log('Connection has been established successfully.');
-
-            UserModel.sync({ force: true })
-                .then(() => UserModel.bulkCreate(dbInitialData))
-                .then(() => console.log('Database has been initialized successfully'))
-                .catch(err => console.log(err));
-        })
-        .catch(err => {
-            console.error('Unable to connect to the database:', err);
-        });
+export default async () => {
+    try {
+        await db.authenticate();
+        console.log('Connection has been established successfully.');
+        await UserModel.sync({ force: true });
+        await UserModel.bulkCreate(dbInitialData);
+        console.log('Database has been initialized successfully');
+        await GroupModel.sync({ force: true });
+        await GroupModel.bulkCreate(groups);
+        console.log('Table Groups has been initialized successfully');
+        await UserGroupModel.sync({ force: true });
+        console.log('Table UserGroup has been initialized successfully');
+    } catch (e) {
+        console.error('Unable to connect to the database:', e);
+    }
 };

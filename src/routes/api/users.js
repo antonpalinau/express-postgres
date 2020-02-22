@@ -3,6 +3,7 @@ import validateSchema from '../middlewares/validation';
 import { schema } from './users.post.put.schema';
 import UserService from '../../services/UserService';
 import UserModel from '../../models/UserModel';
+import db from '../../data-access/database';
 
 const router = Router();
 
@@ -26,11 +27,11 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', validateSchema(schema), async (req, res) => {
     const { login, password, age } = req.body;
-    const userServiceInstance = new UserService(UserModel);
+    const userServiceInstance = new UserService(UserModel, db);
     const user = await userServiceInstance.createUser(login, password, age, false);
 
     if (!user) {
-        res.json({ msg: 'User with the same login already exists' });
+        return res.status(400).json({ msg: 'User with the same login already exists' });
     }
 
     res.json({ msg: 'New user is created', user });
@@ -39,7 +40,7 @@ router.post('/', validateSchema(schema), async (req, res) => {
 router.put('/:id', validateSchema(schema), async (req, res) => {
     const id = req.params.id;
     const { login, password, age } = req.body;
-    const userServiceInstance = new UserService(UserModel);
+    const userServiceInstance = new UserService(UserModel, db);
     const user = await userServiceInstance.updateUser(login, password, age, id);
 
     if (user) {
@@ -51,7 +52,7 @@ router.put('/:id', validateSchema(schema), async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     const id = req.params.id;
-    const userServiceInstance = new UserService(UserModel);
+    const userServiceInstance = new UserService(UserModel, db);
     const user = await userServiceInstance.softDeleteUser(id);
 
     if (user) {
