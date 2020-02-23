@@ -1,4 +1,5 @@
 import uuid from 'uuid';
+import { logGeneratedServiceMessage } from '../utils/logger';
 
 class GroupService {
     constructor(groupModel, db) {
@@ -9,13 +10,13 @@ class GroupService {
     getAllGroups() {
         return this.groupModel.findAll()
             .then(groups => groups)
-            .catch(err => console.log(err));
+            .catch(err => logGeneratedServiceMessage('GroupService', 'getAllGroups', undefined, err.message));
     }
 
     getGroupById(id, transaction) {
         return this.groupModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(group => group)
-            .catch(err => console.log(err));
+            .catch(err => logGeneratedServiceMessage('GroupService', 'getGroupById', { id, transaction }, err.message));
     }
 
     async createGroup(name, permissions) {
@@ -41,10 +42,10 @@ class GroupService {
             await transaction.commit();
 
             return group;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
-            throw e;
+            logGeneratedServiceMessage('GroupService', 'createGroup', { name, permissions }, err.message);
+            throw err;
         }
     }
 
@@ -68,10 +69,10 @@ class GroupService {
             await transaction.commit();
 
             return group;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
-            throw e;
+            logGeneratedServiceMessage('GroupService', 'updateGroup', { name, permissions, id }, err.message);
+            throw err;
         }
     }
 
@@ -94,10 +95,10 @@ class GroupService {
             await transaction.commit();
 
             return group;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
-            throw e;
+            logGeneratedServiceMessage('GroupService', 'hardDeleteGroup', { id }, err.message);
+            throw err;
         }
     }
 }

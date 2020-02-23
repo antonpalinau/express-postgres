@@ -1,3 +1,5 @@
+import { logGeneratedServiceMessage } from '../utils/logger';
+
 class UserService {
     constructor(userModel, db) {
         this.userModel = userModel;
@@ -7,13 +9,13 @@ class UserService {
     getAllUsers() {
         return this.userModel.findAll()
             .then(users => users)
-            .catch(err => console.log(err));
+            .catch(err => logGeneratedServiceMessage('UserService', 'getAllUsers', undefined, err.message));
     }
 
     getUserById(id, transaction) {
         return this.userModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(user => user)
-            .catch(err => console.log(err));
+            .catch(err => logGeneratedServiceMessage('UserService', 'getUserById', { id, transaction }, err.message));
     }
 
     async createUser(login, password, age, isDeleted) {
@@ -29,9 +31,9 @@ class UserService {
             await transaction.commit();
 
             return user;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
+            logGeneratedServiceMessage('UserService', 'createUser', { login, password, age, isDeleted }, err.message);
         }
     }
 
@@ -56,9 +58,9 @@ class UserService {
             await transaction.commit();
 
             return user;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
+            logGeneratedServiceMessage('UserService', 'updateUser', { login, password, age, id }, err.message);
         }
     }
 
@@ -83,9 +85,9 @@ class UserService {
             await transaction.commit();
 
             return user;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
+            logGeneratedServiceMessage('UserService', 'softDeleteUser', { id }, err.message);
         }
         // return this.userModel.update({ isDeleted: true }, {
         //     where: {

@@ -1,4 +1,5 @@
 import { Op } from '../data-access/database';
+import { logGeneratedServiceMessage } from '../utils/logger';
 
 class AutoSuggestUserService {
     constructor(userModel) {
@@ -18,7 +19,7 @@ class AutoSuggestUserService {
             limit
         })
             .then(users => users)
-            .catch(err => console.log(err));
+            .catch(err => logGeneratedServiceMessage('AutoSuggestUserService', 'getAutoSuggestUsers', { substr, limit }, err.message));
     }
 }
 
