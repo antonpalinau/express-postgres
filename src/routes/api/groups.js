@@ -9,10 +9,15 @@ import db from '../../data-access/database';
 const router = Router();
 const groupServiceInstance = new GroupService(GroupModel, db);
 
-router.get('/', loggerMiddleware('getAllGroups'), async (req, res) => {
-    const groups = await groupServiceInstance.getAllGroups();
+router.get('/', loggerMiddleware('getAllGroups'), async (req, res, next) => {
+    try {
+        const groups = await groupServiceInstance.getAllGroups();
 
-    res.json(groups);
+        res.json(groups);
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
+    }
 });
 
 router.get('/:id', loggerMiddleware('getGroupById'), async (req, res, next) => {
@@ -43,7 +48,6 @@ router.post('/', validateSchema(schema_post), loggerMiddleware('createGroup'), a
         res.json({ msg: 'New group is created', group });
     } catch (e) {
         res.status(400).json({ msg: 'error', e });
-        console.log(e);
     }
 });
 
@@ -60,7 +64,6 @@ router.put('/:id', validateSchema(schema_put), loggerMiddleware('updateGroup'), 
         res.status(400).json({ msg: `No group with the id of ${id}` });
     } catch (e) {
         res.status(400).json({ msg: 'error', e });
-        console.log('Error', e);
     }
 });
 
@@ -76,7 +79,6 @@ router.delete('/:id', loggerMiddleware('hardDeleteGroup'), async (req, res) => {
         res.status(400).json({ msg: `No group with the id of ${id}` });
     } catch (e) {
         res.status(400).json({ msg: 'error', e });
-        console.log('Error', e);
     }
 });
 

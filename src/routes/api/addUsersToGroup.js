@@ -23,7 +23,6 @@ router.post('/', validateSchema(schema_post), loggerMiddleware('addUsersToGroup'
         res.status(400).json({ msg: userGroupMsg });
     } catch (e) {
         res.status(400).json({ err: e });
-        console.log('Error', e);
     }
 });
 

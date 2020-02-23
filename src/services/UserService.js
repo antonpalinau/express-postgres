@@ -9,13 +9,19 @@ class UserService {
     getAllUsers() {
         return this.userModel.findAll()
             .then(users => users)
-            .catch(err => logGeneratedServiceMessage('UserService', 'getAllUsers', undefined, err.message));
+            .catch(err => {
+                logGeneratedServiceMessage('UserService', 'getAllUsers', undefined, err.message);
+                throw err;
+            });
     }
 
     getUserById(id, transaction) {
         return this.userModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(user => user)
-            .catch(err => logGeneratedServiceMessage('UserService', 'getUserById', { id, transaction }, err.message));
+            .catch(err => {
+                logGeneratedServiceMessage('UserService', 'getUserById', { id, transaction }, err.message);
+                throw err;
+            });
     }
 
     async createUser(login, password, age, isDeleted) {

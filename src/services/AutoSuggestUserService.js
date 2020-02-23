@@ -19,7 +19,10 @@ class AutoSuggestUserService {
             limit
         })
             .then(users => users)
-            .catch(err => logGeneratedServiceMessage('AutoSuggestUserService', 'getAutoSuggestUsers', { substr, limit }, err.message));
+            .catch(err => {
+                logGeneratedServiceMessage('AutoSuggestUserService', 'getAutoSuggestUsers', { substr, limit }, err.message);
+                throw err;
+            });
     }
 }
 

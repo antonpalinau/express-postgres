@@ -9,20 +9,30 @@ import db from '../../data-access/database';
 const router = Router();
 const userServiceInstance = new UserService(UserModel, db);
 
-router.get('/', loggerMiddleware('getAllUsers'), async (req, res) => {
-    const users = await userServiceInstance.getAllUsers();
+router.get('/', loggerMiddleware('getAllUsers'), async (req, res, next) => {
+    try {
+        const users = await userServiceInstance.getAllUsers();
 
-    res.json(users);
+        res.json(users);
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
+    }
 });
 
-router.get('/:id', loggerMiddleware('getUserById'), async (req, res) => {
-    const user = await userServiceInstance.getUserById(req.params.id);
+router.get('/:id', loggerMiddleware('getUserById'), async (req, res, next) => {
+    try {
+        const user = await userServiceInstance.getUserById(req.params.id);
 
-    if (user) {
-        return res.json(user);
+        if (user) {
+            return res.json(user);
+        }
+
+        res.json({ msg: 'User not found' });
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
     }
-
-    res.json({ msg: 'User not found' });
 });
 
 router.post('/', validateSchema(schema), loggerMiddleware('createUser'), async (req, res) => {

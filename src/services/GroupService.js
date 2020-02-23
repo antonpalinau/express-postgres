@@ -10,13 +10,19 @@ class GroupService {
     getAllGroups() {
         return this.groupModel.findAll()
             .then(groups => groups)
-            .catch(err => logGeneratedServiceMessage('GroupService', 'getAllGroups', undefined, err.message));
+            .catch(err => {
+                logGeneratedServiceMessage('GroupService', 'getAllGroups', undefined, err.message);
+                throw err;
+            });
     }
 
     getGroupById(id, transaction) {
         return this.groupModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(group => group)
-            .catch(err => logGeneratedServiceMessage('GroupService', 'getGroupById', { id, transaction }, err.message));
+            .catch(err => {
+                logGeneratedServiceMessage('GroupService', 'getGroupById', { id, transaction }, err.message);
+                throw err;
+            });
     }
 
     async createGroup(name, permissions) {
