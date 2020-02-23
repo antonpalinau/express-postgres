@@ -1,11 +1,12 @@
 import { logGeneratedServiceMessage } from '../utils/logger';
+import measureTime from '../utils/measureTime';
 
 class UserService {
     constructor(userModel, db) {
         this.userModel = userModel;
         this.db = db;
     }
-
+    @measureTime
     getAllUsers() {
         return this.userModel.findAll()
             .then(users => users)
@@ -14,7 +15,7 @@ class UserService {
                 throw err;
             });
     }
-
+    @measureTime
     getUserById(id, transaction) {
         return this.userModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(user => user)
@@ -23,7 +24,7 @@ class UserService {
                 throw err;
             });
     }
-
+    @measureTime
     async createUser(login, password, age, isDeleted) {
         let transaction;
         try {
@@ -42,7 +43,7 @@ class UserService {
             logGeneratedServiceMessage('UserService', 'createUser', { login, password, age, isDeleted }, err.message);
         }
     }
-
+    @measureTime
     async updateUser(login, password, age, id) {
         let transaction;
 
@@ -69,7 +70,7 @@ class UserService {
             logGeneratedServiceMessage('UserService', 'updateUser', { login, password, age, id }, err.message);
         }
     }
-
+    @measureTime
     async softDeleteUser(id) {
         let transaction;
 

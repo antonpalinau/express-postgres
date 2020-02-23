@@ -1,12 +1,13 @@
 import uuid from 'uuid';
 import { logGeneratedServiceMessage } from '../utils/logger';
+import measureTime from '../utils/measureTime';
 
 class GroupService {
     constructor(groupModel, db) {
         this.groupModel = groupModel;
         this.db = db;
     }
-
+    @measureTime
     getAllGroups() {
         return this.groupModel.findAll()
             .then(groups => groups)
@@ -15,7 +16,7 @@ class GroupService {
                 throw err;
             });
     }
-
+    @measureTime
     getGroupById(id, transaction) {
         return this.groupModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(group => group)
@@ -24,7 +25,7 @@ class GroupService {
                 throw err;
             });
     }
-
+    @measureTime
     async createGroup(name, permissions) {
         let transaction;
         try {
@@ -54,7 +55,7 @@ class GroupService {
             throw err;
         }
     }
-
+    @measureTime
     async updateGroup(name, permissions, id) {
         let transaction;
         try {
@@ -81,7 +82,7 @@ class GroupService {
             throw err;
         }
     }
-
+    @measureTime
     async hardDeleteGroup(id) {
         let transaction;
         try {

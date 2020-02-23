@@ -11,7 +11,7 @@ router.get('/', loggerMiddleware('getAutoSuggestUsers'), async (req, res, next) 
     const limit = req.query.limit;
     try {
         const users = await autoSuggestUserServiceInstance.getAutoSuggestUsers(loginSubstr, limit);
-        console.log('USERS', users);
+
         res.json(users);
     } catch (err) {
         // eslint-disable-next-line

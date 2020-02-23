@@ -1,4 +1,5 @@
 import { logGeneratedServiceMessage } from '../utils/logger';
+import measureTime from '../utils/measureTime';
 
 class UserGroupService {
     constructor(userGroupModel, userModel, groupModel, db) {
@@ -7,7 +8,7 @@ class UserGroupService {
         this.groupModel = groupModel;
         this.db = db;
     }
-
+    @measureTime
     async addUsersToGroup(groupId, userIds) {
         let transaction;
         try {
