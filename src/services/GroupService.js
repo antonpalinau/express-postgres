@@ -1,23 +1,31 @@
 import uuid from 'uuid';
+import { logGeneratedServiceMessage } from '../utils/logger';
+import measureTime from '../utils/measureTime';
 
 class GroupService {
     constructor(groupModel, db) {
         this.groupModel = groupModel;
         this.db = db;
     }
-
+    @measureTime
     getAllGroups() {
         return this.groupModel.findAll()
             .then(groups => groups)
-            .catch(err => console.log(err));
+            .catch(err => {
+                logGeneratedServiceMessage('GroupService', 'getAllGroups', undefined, err.message);
+                throw err;
+            });
     }
-
+    @measureTime
     getGroupById(id, transaction) {
         return this.groupModel.findByPk(id, { ...(transaction && { transaction }) })
             .then(group => group)
-            .catch(err => console.log(err));
+            .catch(err => {
+                logGeneratedServiceMessage('GroupService', 'getGroupById', { id, transaction }, err.message);
+                throw err;
+            });
     }
-
+    @measureTime
     async createGroup(name, permissions) {
         let transaction;
         try {
@@ -41,13 +49,13 @@ class GroupService {
             await transaction.commit();
 
             return group;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
-            throw e;
+            logGeneratedServiceMessage('GroupService', 'createGroup', { name, permissions }, err.message);
+            throw err;
         }
     }
-
+    @measureTime
     async updateGroup(name, permissions, id) {
         let transaction;
         try {
@@ -68,13 +76,13 @@ class GroupService {
             await transaction.commit();
 
             return group;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
-            throw e;
+            logGeneratedServiceMessage('GroupService', 'updateGroup', { name, permissions, id }, err.message);
+            throw err;
         }
     }
-
+    @measureTime
     async hardDeleteGroup(id) {
         let transaction;
         try {
@@ -94,10 +102,10 @@ class GroupService {
             await transaction.commit();
 
             return group;
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
-            throw e;
+            logGeneratedServiceMessage('GroupService', 'hardDeleteGroup', { id }, err.message);
+            throw err;
         }
     }
 }

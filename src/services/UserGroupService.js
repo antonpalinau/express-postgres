@@ -1,3 +1,6 @@
+import { logGeneratedServiceMessage } from '../utils/logger';
+import measureTime from '../utils/measureTime';
+
 class UserGroupService {
     constructor(userGroupModel, userModel, groupModel, db) {
         this.userGroupModel = userGroupModel;
@@ -5,7 +8,7 @@ class UserGroupService {
         this.groupModel = groupModel;
         this.db = db;
     }
-
+    @measureTime
     async addUsersToGroup(groupId, userIds) {
         let transaction;
         try {
@@ -34,10 +37,10 @@ class UserGroupService {
             }
 
             await transaction.commit();
-        } catch (e) {
+        } catch (err) {
             if (transaction) await transaction.rollback();
-            console.log(e);
-            throw e;
+            logGeneratedServiceMessage('UserGroupService', 'addUsersToGroup', { groupId, userIds }, err.message);
+            throw err;
         }
     }
 }

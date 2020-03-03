@@ -1,33 +1,42 @@
 import { Router } from 'express';
 import validateSchema from '../middlewares/validation';
+import loggerMiddleware from '../middlewares/logger';
 import { schema } from './users.post.put.schema';
 import UserService from '../../services/UserService';
 import UserModel from '../../models/UserModel';
 import db from '../../data-access/database';
 
 const router = Router();
+const userServiceInstance = new UserService(UserModel, db);
 
-router.get('/', async (req, res) => {
-    const userServiceInstance = new UserService(UserModel);
-    const users = await userServiceInstance.getAllUsers();
+router.get('/', loggerMiddleware('getAllUsers'), async (req, res, next) => {
+    try {
+        const users = await userServiceInstance.getAllUsers();
 
-    res.json(users);
-});
-
-router.get('/:id', async (req, res) => {
-    const userServiceInstance = new UserService(UserModel);
-    const user = await userServiceInstance.getUserById(req.params.id);
-
-    if (user) {
-        return res.json(user);
+        res.json(users);
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
     }
-
-    res.json({ msg: 'User not found' });
 });
 
-router.post('/', validateSchema(schema), async (req, res) => {
+router.get('/:id', loggerMiddleware('getUserById'), async (req, res, next) => {
+    try {
+        const user = await userServiceInstance.getUserById(req.params.id);
+
+        if (user) {
+            return res.json(user);
+        }
+
+        res.json({ msg: 'User not found' });
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
+    }
+});
+
+router.post('/', validateSchema(schema), loggerMiddleware('createUser'), async (req, res) => {
     const { login, password, age } = req.body;
-    const userServiceInstance = new UserService(UserModel, db);
     const user = await userServiceInstance.createUser(login, password, age, false);
 
     if (!user) {
@@ -37,10 +46,9 @@ router.post('/', validateSchema(schema), async (req, res) => {
     res.json({ msg: 'New user is created', user });
 });
 
-router.put('/:id', validateSchema(schema), async (req, res) => {
+router.put('/:id', validateSchema(schema), loggerMiddleware('updateUser'), async (req, res) => {
     const id = req.params.id;
     const { login, password, age } = req.body;
-    const userServiceInstance = new UserService(UserModel, db);
     const user = await userServiceInstance.updateUser(login, password, age, id);
 
     if (user) {
@@ -50,9 +58,8 @@ router.put('/:id', validateSchema(schema), async (req, res) => {
     res.status(400).json({ msg: `No user with the id of ${id}` });
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', loggerMiddleware('softDeleteUser'), async (req, res) => {
     const id = req.params.id;
-    const userServiceInstance = new UserService(UserModel, db);
     const user = await userServiceInstance.softDeleteUser(id);
 
     if (user) {

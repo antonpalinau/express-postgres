@@ -1,33 +1,42 @@
 import { Router } from 'express';
 import validateSchema from '../middlewares/validation';
+import loggerMiddleware from '../middlewares/logger';
 import { schema_post, schema_put } from './groups.post.put.schema';
 import GroupService from '../../services/GroupService';
 import GroupModel from '../../models/GroupModel';
 import db from '../../data-access/database';
 
 const router = Router();
+const groupServiceInstance = new GroupService(GroupModel, db);
 
-router.get('/', async (req, res) => {
-    const groupServiceInstance = new GroupService(GroupModel);
-    const groups = await groupServiceInstance.getAllGroups();
+router.get('/', loggerMiddleware('getAllGroups'), async (req, res, next) => {
+    try {
+        const groups = await groupServiceInstance.getAllGroups();
 
-    res.json(groups);
-});
-
-router.get('/:id', async (req, res) => {
-    const groupServiceInstance = new GroupService(GroupModel);
-    const group = await groupServiceInstance.getGroupById(req.params.id);
-
-    if (group) {
-        return res.json(group);
+        res.json(groups);
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
     }
-
-    res.json({ msg: 'Group not found' });
 });
 
-router.post('/', validateSchema(schema_post), async (req, res) => {
+router.get('/:id', loggerMiddleware('getGroupById'), async (req, res, next) => {
+    try {
+        const group = await groupServiceInstance.getGroupById(req.params.id);
+
+        if (group) {
+            return res.json(group);
+        }
+
+        res.json({ msg: 'Group not found' });
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
+    }
+});
+
+router.post('/', validateSchema(schema_post), loggerMiddleware('createGroup'), async (req, res) => {
     const { name, permissions } = req.body;
-    const groupServiceInstance = new GroupService(GroupModel, db);
 
     try {
         const group = await groupServiceInstance.createGroup(name, permissions);
@@ -39,14 +48,12 @@ router.post('/', validateSchema(schema_post), async (req, res) => {
         res.json({ msg: 'New group is created', group });
     } catch (e) {
         res.status(400).json({ msg: 'error', e });
-        console.log(e);
     }
 });
 
-router.put('/:id', validateSchema(schema_put), async (req, res) => {
+router.put('/:id', validateSchema(schema_put), loggerMiddleware('updateGroup'), async (req, res) => {
     const id = req.params.id;
     const { name, permissions } = req.body;
-    const groupServiceInstance = new GroupService(GroupModel, db);
 
     try {
         const group = await groupServiceInstance.updateGroup(name, permissions, id);
@@ -57,13 +64,11 @@ router.put('/:id', validateSchema(schema_put), async (req, res) => {
         res.status(400).json({ msg: `No group with the id of ${id}` });
     } catch (e) {
         res.status(400).json({ msg: 'error', e });
-        console.log('Error', e);
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', loggerMiddleware('hardDeleteGroup'), async (req, res) => {
     const id = req.params.id;
-    const groupServiceInstance = new GroupService(GroupModel, db);
 
     try {
         const group = await groupServiceInstance.hardDeleteGroup(id);
@@ -74,7 +79,6 @@ router.delete('/:id', async (req, res) => {
         res.status(400).json({ msg: `No group with the id of ${id}` });
     } catch (e) {
         res.status(400).json({ msg: 'error', e });
-        console.log('Error', e);
     }
 });
 
