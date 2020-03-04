@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import autoSuggestRouter from './routes/api/getAutoSuggestUsers';
 import usersRouter from './routes/api/users';
 import groupsRouter from './routes/api/groups';
@@ -11,6 +12,7 @@ import { logger } from './routes/middlewares/logger';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use('/api/users', usersRouter);
 app.use('/api/getautosuggestusers', autoSuggestRouter);
