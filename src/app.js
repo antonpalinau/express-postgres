@@ -1,8 +1,10 @@
 import express from 'express';
+import cors from 'cors';
 import autoSuggestRouter from './routes/api/getAutoSuggestUsers';
 import usersRouter from './routes/api/users';
 import groupsRouter from './routes/api/groups';
 import addUsersToGroup from './routes/api/addUsersToGroup';
+import login from './routes/api/login';
 import config from './config';
 import connectAndInitializeDB from './data-access';
 import db from './data-access/database';
@@ -10,11 +12,13 @@ import { logger } from './routes/middlewares/logger';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use('/api/users', usersRouter);
 app.use('/api/getautosuggestusers', autoSuggestRouter);
 app.use('/api/groups', groupsRouter);
 app.use('/api/adduserstogroup', addUsersToGroup);
+app.use('/api/login', login);
 app.use((req, res, next) => {
     const error = new Error('Not found');
     error.status = 404;

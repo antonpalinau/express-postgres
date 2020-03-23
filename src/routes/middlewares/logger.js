@@ -82,6 +82,12 @@ const loggerMiddleware = serviceMethod => (req, res, next) => {
                 userIds: req.body.userIds
             };
             break;
+        case 'login':
+            args = {
+                login: req.body.login,
+                password: req.body.password
+            };
+            break;
         default:
             args = undefined;
     }

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import validateSchema from '../middlewares/validation';
 import loggerMiddleware from '../middlewares/logger';
+import authenticationToken from '../middlewares/authenticationToken';
 import { schema } from './users.post.put.schema';
 import UserService from '../../services/UserService';
 import UserModel from '../../models/UserModel';
@@ -9,7 +10,7 @@ import db from '../../data-access/database';
 const router = Router();
 const userServiceInstance = new UserService(UserModel, db);
 
-router.get('/', loggerMiddleware('getAllUsers'), async (req, res, next) => {
+router.get('/', authenticationToken, loggerMiddleware('getAllUsers'), async (req, res, next) => {
     try {
         const users = await userServiceInstance.getAllUsers();
 
@@ -20,7 +21,7 @@ router.get('/', loggerMiddleware('getAllUsers'), async (req, res, next) => {
     }
 });
 
-router.get('/:id', loggerMiddleware('getUserById'), async (req, res, next) => {
+router.get('/:id', authenticationToken, loggerMiddleware('getUserById'), async (req, res, next) => {
     try {
         const user = await userServiceInstance.getUserById(req.params.id);
 
@@ -35,7 +36,7 @@ router.get('/:id', loggerMiddleware('getUserById'), async (req, res, next) => {
     }
 });
 
-router.post('/', validateSchema(schema), loggerMiddleware('createUser'), async (req, res) => {
+router.post('/', authenticationToken, validateSchema(schema), loggerMiddleware('createUser'), async (req, res) => {
     const { login, password, age } = req.body;
     const user = await userServiceInstance.createUser(login, password, age, false);
 
@@ -46,7 +47,7 @@ router.post('/', validateSchema(schema), loggerMiddleware('createUser'), async (
     res.json({ msg: 'New user is created', user });
 });
 
-router.put('/:id', validateSchema(schema), loggerMiddleware('updateUser'), async (req, res) => {
+router.put('/:id', authenticationToken, validateSchema(schema), loggerMiddleware('updateUser'), async (req, res) => {
     const id = req.params.id;
     const { login, password, age } = req.body;
     const user = await userServiceInstance.updateUser(login, password, age, id);
@@ -58,7 +59,7 @@ router.put('/:id', validateSchema(schema), loggerMiddleware('updateUser'), async
     res.status(400).json({ msg: `No user with the id of ${id}` });
 });
 
-router.delete('/:id', loggerMiddleware('softDeleteUser'), async (req, res) => {
+router.delete('/:id', authenticationToken, loggerMiddleware('softDeleteUser'), async (req, res) => {
     const id = req.params.id;
     const user = await userServiceInstance.softDeleteUser(id);
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import validateSchema from '../middlewares/validation';
 import loggerMiddleware from '../middlewares/logger';
+import authenticationToken from '../middlewares/authenticationToken';
 import { schema_post, schema_put } from './groups.post.put.schema';
 import GroupService from '../../services/GroupService';
 import GroupModel from '../../models/GroupModel';
@@ -9,7 +10,7 @@ import db from '../../data-access/database';
 const router = Router();
 const groupServiceInstance = new GroupService(GroupModel, db);
 
-router.get('/', loggerMiddleware('getAllGroups'), async (req, res, next) => {
+router.get('/', authenticationToken, loggerMiddleware('getAllGroups'), async (req, res, next) => {
     try {
         const groups = await groupServiceInstance.getAllGroups();
 
@@ -20,7 +21,7 @@ router.get('/', loggerMiddleware('getAllGroups'), async (req, res, next) => {
     }
 });
 
-router.get('/:id', loggerMiddleware('getGroupById'), async (req, res, next) => {
+router.get('/:id', authenticationToken, loggerMiddleware('getGroupById'), async (req, res, next) => {
     try {
         const group = await groupServiceInstance.getGroupById(req.params.id);
 
@@ -35,7 +36,7 @@ router.get('/:id', loggerMiddleware('getGroupById'), async (req, res, next) => {
     }
 });
 
-router.post('/', validateSchema(schema_post), loggerMiddleware('createGroup'), async (req, res) => {
+router.post('/', authenticationToken, validateSchema(schema_post), loggerMiddleware('createGroup'), async (req, res) => {
     const { name, permissions } = req.body;
 
     try {
@@ -51,7 +52,7 @@ router.post('/', validateSchema(schema_post), loggerMiddleware('createGroup'), a
     }
 });
 
-router.put('/:id', validateSchema(schema_put), loggerMiddleware('updateGroup'), async (req, res) => {
+router.put('/:id', authenticationToken, validateSchema(schema_put), loggerMiddleware('updateGroup'), async (req, res) => {
     const id = req.params.id;
     const { name, permissions } = req.body;
 
@@ -67,7 +68,7 @@ router.put('/:id', validateSchema(schema_put), loggerMiddleware('updateGroup'), 
     }
 });
 
-router.delete('/:id', loggerMiddleware('hardDeleteGroup'), async (req, res) => {
+router.delete('/:id', authenticationToken, loggerMiddleware('hardDeleteGroup'), async (req, res) => {
     const id = req.params.id;
 
     try {
