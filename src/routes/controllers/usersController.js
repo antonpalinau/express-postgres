@@ -30,36 +30,51 @@ export const getUserById = async (req, res, next) => {
     }
 };
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
     const { login, password, age } = req.body;
-    const user = await userServiceInstance.createUser(login, password, age, false);
+    try {
+        const user = await userServiceInstance.createUser(login, password, age, false);
 
-    if (!user) {
-        return res.status(400).json({ msg: 'User with the same login already exists' });
+        if (!user) {
+            return res.status(400).json({ msg: 'User with the same login already exists' });
+        }
+
+        res.json({ msg: 'New user is created', user });
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
     }
-
-    res.json({ msg: 'New user is created', user });
 };
 
-export const updateUser = async (req, res) => {
+export const updateUser = async (req, res, next) => {
     const id = req.params.id;
     const { login, password, age } = req.body;
-    const user = await userServiceInstance.updateUser(login, password, age, id);
+    try {
+        const user = await userServiceInstance.updateUser(login, password, age, id);
 
-    if (user) {
-        return res.json({ msg: `User with the id of ${id} was updated`, user: user[1] });
+        if (user) {
+            return res.json({ msg: `User with the id of ${id} was updated`, user: user[1] });
+        }
+
+        res.status(400).json({ msg: `No user with the id of ${id}` });
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
     }
-
-    res.status(400).json({ msg: `No user with the id of ${id}` });
 };
 
-export const softDeleteUser = async (req, res) => {
+export const softDeleteUser = async (req, res, next) => {
     const id = req.params.id;
-    const user = await userServiceInstance.softDeleteUser(id);
+    try {
+        const user = await userServiceInstance.softDeleteUser(id);
 
-    if (user) {
-        return res.json({ msg: `User with the id of ${id} was softly deleted`, user: user[1] });
+        if (user) {
+            return res.json({ msg: `User with the id of ${id} was softly deleted`, user: user[1] });
+        }
+
+        res.status(400).json({ msg: `No user with the id of ${id}` });
+    } catch (err) {
+        // eslint-disable-next-line
+        next(err);
     }
-
-    res.status(400).json({ msg: `No user with the id of ${id}` });
 };

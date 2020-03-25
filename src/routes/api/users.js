@@ -16,14 +16,14 @@ const router = Router();
 
 router.get(
     '/',
-    authenticationToken,
+    //authenticationToken,
     loggerMiddleware('getAllUsers'),
     getAllUsers
 );
 
 router.get(
     '/:id',
-    authenticationToken,
+    //authenticationToken,
     loggerMiddleware('getUserById'),
     getUserById
 );
