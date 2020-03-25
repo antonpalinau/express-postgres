@@ -126,4 +126,213 @@ describe('group controller', () => {
             GroupService.prototype.getGroupById.mockClear();
         });
     });
+    describe('createGroup', () => {
+        test('should successfully return a success msg and a group created', async () => {
+            const name = 'workrers';
+            const permissions = ['READ', 'WRITE'];
+            const data = [
+                {
+                    'id': 'c767fe58-055c-4cbb-8d4a-d520fc0a81b6',
+                    'name': 'workrers',
+                    'permissions': [
+                        'READ',
+                        'WRITE'
+                    ]
+                }
+            ];
+            const resSpy = {
+                json: jest.fn()
+            };
+
+            GroupService.prototype.createGroup.mockReturnValueOnce(Promise.resolve(data));
+
+            await createGroup({ body: { name, permissions } }, resSpy, null);
+
+            expect(GroupService.prototype.createGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.createGroup).toHaveBeenCalledWith(name, permissions);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: 'New group is created', group: data });
+
+            GroupService.prototype.createGroup.mockClear();
+        });
+        test('should return a message Group with the same name already exists', async () => {
+            const name = 'workrers';
+            const permissions = ['READ', 'WRITE'];
+            const resSpy = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis()
+            };
+
+            GroupService.prototype.createGroup.mockReturnValueOnce(undefined);
+
+            await createGroup({ body: { name, permissions } }, resSpy, null);
+
+            expect(GroupService.prototype.createGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.createGroup).toHaveBeenCalledWith(name, permissions);
+            expect(resSpy.status).toHaveBeenCalledWith(400);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: 'Group with the same name already exists' });
+
+            GroupService.prototype.createGroup.mockClear();
+        });
+        test('should handle catch block', async () => {
+            const name = 'workrers';
+            const permissions = ['READ', 'WRITE'];
+            const error = new Error('create group error');
+            const resSpy = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn()
+            };
+
+            GroupService.prototype.createGroup.mockReturnValueOnce(Promise.reject(error));
+
+            await createGroup({ body: { name, permissions } }, resSpy, null);
+
+            expect(GroupService.prototype.createGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.createGroup).toHaveBeenCalledWith(name, permissions);
+            expect(GroupService.prototype.createGroup.mock.calls.length).toBe(1);
+            expect(resSpy.status).toHaveBeenCalledWith(400);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: 'error', e: error });
+
+            GroupService.prototype.createGroup.mockClear();
+        });
+    });
+    describe('updateGroup', () => {
+        test('should successfully return a success msg and a group updated', async () => {
+            const name = 'workrers';
+            const permissions = ['READ', 'WRITE'];
+            const id = 1;
+            const data = [
+                {},
+                {
+                    'id': '1',
+                    'name': 'workrers',
+                    'permissions': [
+                        'READ',
+                        'WRITE'
+                    ]
+                }
+            ];
+            const resSpy = {
+                json: jest.fn()
+            };
+
+            GroupService.prototype.updateGroup.mockReturnValueOnce(Promise.resolve(data));
+
+            await updateGroup({ body: { name, permissions }, params: { id } }, resSpy, null);
+
+            expect(GroupService.prototype.updateGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.updateGroup).toHaveBeenCalledWith(name, permissions, id);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: `Group with the id of ${id} was updated`, group: data[1] });
+
+            GroupService.prototype.updateGroup.mockClear();
+        });
+        test('should return a message No group with the id of ', async () => {
+            const name = 'workrers';
+            const permissions = ['READ', 'WRITE'];
+            const id = 1;
+            const resSpy = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis()
+            };
+
+            GroupService.prototype.updateGroup.mockReturnValueOnce(undefined);
+
+            await updateGroup({ body: { name, permissions }, params: { id } }, resSpy, null);
+
+            expect(GroupService.prototype.updateGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.updateGroup).toHaveBeenCalledWith(name, permissions, id);
+            expect(resSpy.status).toHaveBeenCalledWith(400);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: `No group with the id of ${id}` });
+
+            GroupService.prototype.updateGroup.mockClear();
+        });
+        test('should handle catch block', async () => {
+            const name = 'workrers';
+            const permissions = ['READ', 'WRITE'];
+            const id = 1;
+            const error = new Error('update group error');
+            const resSpy = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn()
+            };
+
+            GroupService.prototype.updateGroup.mockReturnValueOnce(Promise.reject(error));
+
+            await updateGroup({ body: { name, permissions }, params: { id } }, resSpy, null);
+
+            expect(GroupService.prototype.updateGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.updateGroup).toHaveBeenCalledWith(name, permissions, id);
+            expect(GroupService.prototype.updateGroup.mock.calls.length).toBe(1);
+            expect(resSpy.status).toHaveBeenCalledWith(400);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: 'error', e: error });
+
+            GroupService.prototype.updateGroup.mockClear();
+        });
+    });
+    describe('hardDeleteGroup', () => {
+        test('should successfully return a success msg and a group deleted', async () => {
+            const id = 1;
+            const data = [
+                {},
+                {
+                    'id': '1',
+                    'name': 'workrers',
+                    'permissions': [
+                        'READ',
+                        'WRITE'
+                    ]
+                }
+            ];
+            const resSpy = {
+                json: jest.fn()
+            };
+
+            GroupService.prototype.hardDeleteGroup.mockReturnValueOnce(Promise.resolve(data));
+
+            await hardDeleteGroup({ params: { id } }, resSpy, null);
+
+            expect(GroupService.prototype.hardDeleteGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.hardDeleteGroup).toHaveBeenCalledWith(id);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: `Group with the id of ${id} was hard deleted`, group: data[1] });
+
+            GroupService.prototype.hardDeleteGroup.mockClear();
+        });
+        test('should return a message No group with the id of ', async () => {
+            const id = 1;
+            const resSpy = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis()
+            };
+
+            GroupService.prototype.hardDeleteGroup.mockReturnValueOnce(undefined);
+
+            await hardDeleteGroup({ params: { id } }, resSpy, null);
+
+            expect(GroupService.prototype.hardDeleteGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.hardDeleteGroup).toHaveBeenCalledWith(id);
+            expect(resSpy.status).toHaveBeenCalledWith(400);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: `No group with the id of ${id}` });
+
+            GroupService.prototype.hardDeleteGroup.mockClear();
+        });
+        test('should handle catch block', async () => {
+            const id = 1;
+            const error = new Error('delete group error');
+            const resSpy = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn()
+            };
+
+            GroupService.prototype.hardDeleteGroup.mockReturnValueOnce(Promise.reject(error));
+
+            await hardDeleteGroup({ params: { id } }, resSpy, null);
+
+            expect(GroupService.prototype.hardDeleteGroup).toHaveBeenCalled();
+            expect(GroupService.prototype.hardDeleteGroup).toHaveBeenCalledWith(id);
+            expect(GroupService.prototype.hardDeleteGroup.mock.calls.length).toBe(1);
+            expect(resSpy.status).toHaveBeenCalledWith(400);
+            expect(resSpy.json).toHaveBeenCalledWith({ msg: 'error', e: error });
+
+            GroupService.prototype.hardDeleteGroup.mockClear();
+        });
+    });
 });
