@@ -15,14 +15,14 @@ const router = Router();
 
 router.get(
     '/',
-    authenticationToken,
+    //authenticationToken,
     loggerMiddleware('getAllGroups'),
     getAllGroups
 );
 
 router.get(
     '/:id',
-    authenticationToken,
+    //authenticationToken,
     loggerMiddleware('getGroupById'),
     getGroupById
 );
